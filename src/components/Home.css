@@ -1,0 +1,26 @@
+.btn-cadastrar {
+    background-color:#FE7353;
+    color: white;
+}
+.btn-login {
+    background-color: #F8F9FA;
+    color: #FE7353;
+}
+p {
+    color: #FE7353;
+    margin-top: 50px;
+    margin-bottom: 50px;
+}
+.container {    
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-top: 15px;
+}
+.boxHome{
+    background: #FFF;
+    padding: 20px 30px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}

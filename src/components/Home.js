@@ -1,10 +1,11 @@
+/* eslint-disable import/no-anonymous-default-export */
 import React from 'react';
 import { Col, Container, Row } from 'react-bootstrap';
 import Button from 'react-bootstrap/Button';
 import { useHistory } from 'react-router-dom';
 
-import logo from '../img/Logo.png';
 import './Home.css';
+import Logo from './Logo';
 
 export default () => {
 
@@ -15,12 +16,8 @@ export default () => {
         <Container>
             <div className="container">
                 <div className="boxHome">
-                    <img
-                        src={logo}
-                        className="d-inline-block align-top"
-                        alt="Memorizei logo"
-                    />
-                    <p>A maneira mais fácil e interativa de memorizar a Lei Seca</p>
+                    <Logo/>
+                    <p className="txtHome">A maneira mais fácil e interativa de memorizar a Lei Seca</p>
                     <Row>
                         <Col xs="12">
                             <Button 

@@ -106,15 +106,17 @@ export default () => {
 
     setLoad(false);
 
-    if(response.status === 201){
-      setRegisterCompleted(true);
-      
-    } else if(response.status === 500){
-      toast.error(response.data.message, {
-        autoClose:false,
-        hideProgressBar:true
-      });
-
+    if(response){
+      if(response.status === 201){
+        setRegisterCompleted(true);
+        
+      } 
+      else if(response.status === 500){
+        toast.error(response.data.message, {
+          autoClose:false,
+          hideProgressBar:true
+        });
+      }
     } else {
       toast.error(`Ocorreu um erro ao se registrar: ${response.message}`, {
         autoClose:false,

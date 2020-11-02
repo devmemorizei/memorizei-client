@@ -18,18 +18,20 @@ export default () => {
 
   const [state , setState] = useState({
     name : '',
-    birthDate: null,
+    birthDate: '',
     email : '',
     cpf: '',
     password : '',
     confirmPassword : '',
+    homePhone: '',
+    cellPhone: '',
     typeUser: 0,
     liEAceito: false
   });
   const [exibePolitica, setExibePolitica] = useState(false);
   const [load, setLoad] = useState(false);
   const [registerCompleted, setRegisterCompleted] = useState(false);
-  const [show, setShow] = useState(true);
+  const [validated, setValidated] = useState(false);
 
   const handleChange = (e) => {
       const {id , value, checked} = e.target;
@@ -41,8 +43,8 @@ export default () => {
             [id] : cpfMask(value)
           }));
           break;
-        case 'telefoneResidencial':
-        case 'telefoneCelular':
+        case 'homePhone':
+        case 'cellPhone':
           setState(prevState => ({
             ...prevState,
             [id] : telephoneMask(value)
@@ -67,6 +69,7 @@ export default () => {
     setLoad(true);
     const form = e.currentTarget;
     e.preventDefault();
+    setValidated(true);
 
     if (form.checkValidity() === false) {
       setLoad(false);
@@ -97,28 +100,43 @@ export default () => {
       return;
     }
 
-    let user = {
-      name: state.name,
-      email: state.email,
-      password: state.password,
-      typeUser: state.typeUser
-    }
+    let user = preencheUser();
 
     let response = await createUser(user);
 
-    console.log(response);
+    setLoad(false);
 
     if(response.status === 201){
-      setLoad(false);
       setRegisterCompleted(true);
       
+    } else if(response.status === 500){
+      toast.error(response.data.message, {
+        autoClose:false,
+        hideProgressBar:true
+      });
+
     } else {
-      setLoad(false);
-      toast.error('Ocorreu um erro ao se registrar', {
+      toast.error(`Ocorreu um erro ao se registrar: ${response.message}`, {
         autoClose:false,
         hideProgressBar:true
       });
     }
+  }
+
+  const preencheUser = user => {
+    user = {
+      name: state.name,
+      birthDate: state.birthDate,
+      email: state.email,
+      cpf: state.cpf,
+      password: state.password,
+      homePhone: state.homePhone,
+      cellPhone: state.cellPhone,
+      typeUser: state.typeUser,
+      date: Date.now()
+    };
+
+    return user;
   }
 
   return (
@@ -134,7 +152,7 @@ export default () => {
         {
           !exibePolitica && !load && !registerCompleted &&
           <div>
-            <Form noValidate validated={true} onSubmit={handleSubmitClick}>
+            <Form noValidate validated={validated} onSubmit={handleSubmitClick}>
             <Form.Group>
               <Row>
                 <Col sm={6}>
@@ -168,7 +186,7 @@ export default () => {
                 
               <Row>
                 <Col sm>
-                      <Form.Label className="labelSingUp">Email</Form.Label>
+                      <Form.Label className="labelSingUp">E-mail</Form.Label>
                       <Form.Control 
                         id="email" 
                         size="md" 
@@ -202,21 +220,21 @@ export default () => {
                 <Col sm>
                       <Form.Label className="labelSingUp">Telefone Residencial</Form.Label>
                       <Form.Control 
-                        id="telefoneResidencial" 
+                        id="homePhone" 
                         size="md" 
                         type="input"
-                        value={state.telefoneResidencial}
+                        value={state.homePhone}
                         maxLength="12"
                         onChange={handleChange} />
                   </Col>
                   <Col sm>
                       <Form.Label className="labelSingUp">Telefone Celular</Form.Label>
                       <Form.Control 
-                        id="telefoneCelular" 
+                        id="cellPhone" 
                         size="md" 
                         type="input"
                         maxLength="13"
-                        value={state.telefoneCelular}
+                        value={state.cellPhone}
                         onChange={handleChange} />
                   </Col>
               </Row>
@@ -314,7 +332,7 @@ export default () => {
               </p>
               <hr />
               <div className="d-flex justify-content-end">
-                <Button onClick={() => history.push("/login")} variant="outline-success">
+                <Button onClick={() => history.push("/login")} variant="cadastrar">
                   Fazer login
                 </Button>
               </div>

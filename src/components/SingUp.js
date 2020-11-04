@@ -106,19 +106,18 @@ export default () => {
 
     setLoad(false);
 
-    if(response){
-      if(response.status === 201){
-        setRegisterCompleted(true);
-        
-      } 
-      else if(response.status === 500){
+    if(response && response.status === 201){
+      if(response.data.message){
         toast.error(response.data.message, {
           autoClose:false,
           hideProgressBar:true
         });
+        
+      } else {
+        setRegisterCompleted(true);
       }
     } else {
-      toast.error(`Ocorreu um erro ao se registrar: ${response.message}`, {
+      toast.error('Ocorreu um erro ao se registrar', {
         autoClose:false,
         hideProgressBar:true
       });
@@ -162,8 +161,7 @@ export default () => {
                   <Form.Control
                       id="name"
                       size="md" 
-                      type="text" 
-                      placeholder="nome completo" 
+                      type="text"
                       required
                       value={state.name}
                       onChange={handleChange} />
@@ -193,7 +191,6 @@ export default () => {
                         id="email" 
                         size="md" 
                         type="email" 
-                        placeholder="name@exemplo.com"
                         required
                         value={state.email}
                         onChange={handleChange} />

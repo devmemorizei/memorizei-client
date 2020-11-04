@@ -1,0 +1,29 @@
+.btn-cadastrar {
+  background-color: #fe7353;
+  color: white;
+}
+.txtHome {
+  margin-top: 50px;
+  margin-bottom: 50px;
+}
+.spanCadastrar {
+  margin-top: 15px;
+}
+.inputLogin {
+  border-color: #fe7353;
+}
+::placeholder {
+  /* Chrome, Firefox, Opera, Safari 10.1+ */
+  color: #fe7353 !important;
+  opacity: 1 !important; /* Firefox */
+}
+
+:-ms-input-placeholder {
+  /* Internet Explorer 10-11 */
+  color: #fe7353 !important;
+}
+
+::-ms-input-placeholder {
+  /* Microsoft Edge */
+  color: #fe7353 !important;
+}

@@ -1,6 +1,6 @@
 /* eslint-disable import/no-anonymous-default-export */
 import React from 'react';
-import { FcLeft } from "react-icons/fc";
+import { FcPrevious } from "react-icons/fc";
 import { Tooltip, OverlayTrigger, Row, Container } from 'react-bootstrap';
 
 export default ({ setExibePolitica }) => {
@@ -20,7 +20,7 @@ export default ({ setExibePolitica }) => {
                         delay={{ show: 250, hide: 100 }}
                         overlay={renderTooltip}
                     >
-                        <span style={{cursor: 'pointer'}} onClick={()=>setExibePolitica(false)}> <FcLeft size="3em"/> </span>
+                        <span style={{cursor: 'pointer'}} onClick={()=>setExibePolitica(false)}> <FcPrevious size="2em"/> </span>
                     </OverlayTrigger>
                     <h3 style={{float:'left'}}>Política de Privacidade</h3>
             </Row>

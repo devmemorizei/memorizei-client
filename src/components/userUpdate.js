@@ -1,37 +1,46 @@
 /* eslint-disable import/no-anonymous-default-export */
-import React, {useState} from 'react';
-import {Container, Form, Button, Row, Col, Alert} from 'react-bootstrap';
-import { useHistory } from 'react-router-dom';
-import { createUser } from '../Api.js';
+import React, { useState, useEffect } from 'react';
+import {Container, Form, Button, Row, Col} from 'react-bootstrap';
+import { getUser, updateUser } from '../Api.js';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.min.css'; 
 
-import Logo from './Logo';
 import './SingUp.css';
-import Policy from './Policy.js';
 import { cpfMask, telephoneMask } from '../utils/mask.js';
 import Loading from './Loading.js';
 
-export default () => {
-
-  const history = useHistory();
+export default ({ setChangingUserData }) => {
 
   const [state , setState] = useState({
     name : '',
     birthDate: '',
     email : '',
     cpf: '',
-    password : '',
-    confirmPassword : '',
     homePhone: '',
-    cellPhone: '',
-    typeUser: 0,
-    liEAceito: false
+    cellPhone: ''
   });
-  const [exibePolitica, setExibePolitica] = useState(false);
   const [load, setLoad] = useState(false);
-  const [registerCompleted, setRegisterCompleted] = useState(false);
   const [validated, setValidated] = useState(false);
+
+  useEffect(() => {
+    if(!state.name){
+      loadUserDatas();
+    }    
+  });
+
+  const loadUserDatas = async () => {
+    setLoad(true);
+    const { data } = await getUser(localStorage.getItem('userEmail'));
+    setLoad(false);
+    setState({
+      name : data.name,
+      birthDate: data.birthDate,
+      email : data.email,
+      cpf: data.cpf,
+      homePhone: data.homePhone,
+      cellPhone: data.cellPhone
+    });
+  };
 
   const handleChange = (e) => {
       const {id , value, checked} = e.target;
@@ -82,27 +91,9 @@ export default () => {
       return;
     }
 
-    if(!state.liEAceito){
-      setLoad(false);
-      toast.error('A opção Li e aceito a política de privacidade e cookies deve ser marcada ', {
-        autoClose:false,
-        hideProgressBar:true
-      });
-      return;
-    }
-
-    if(state.password !== state.confirmPassword){
-      setLoad(false);
-      toast.error('A confirmação de senha deve ser igual ao campo de senha', {
-        autoClose:false,
-        hideProgressBar:true
-      });
-      return;
-    }
-
     let user = preencheUser();
 
-    let response = await createUser(user);
+    let response = await updateUser(user);
 
     setLoad(false);
 
@@ -111,10 +102,16 @@ export default () => {
         toast.error(response.data.message, {
           autoClose:false,
           hideProgressBar:true
-        });
-        
+        });        
       } else {
-        setRegisterCompleted(true);
+          toast.success('Dados alterados com sucesso', {
+            autoClose:false,
+            hideProgressBar:true
+          });
+
+          setValidated(false);
+
+          setChangingUserData(false);
       }
     } else {
       toast.error('Ocorreu um erro ao se registrar', {
@@ -130,10 +127,8 @@ export default () => {
       birthDate: state.birthDate,
       email: state.email,
       cpf: state.cpf,
-      password: state.password,
       homePhone: state.homePhone,
       cellPhone: state.cellPhone,
-      typeUser: state.typeUser,
       date: Date.now()
     };
 
@@ -144,14 +139,13 @@ export default () => {
     <div>
       <ToastContainer />
       <Container>
-        <Logo/>
-        <h5 className="txtSingUp">Cadastre-Se</h5>
+        <h5 className="txtSingUp">Alteração de dados</h5>
         {
           load &&
           <Loading type={'bubbles'} color={'#fe7353'} height={'20%'} width={'20%'}/>
         }
         {
-          !exibePolitica && !load && !registerCompleted &&
+          !load &&
           <div>
             <Form noValidate validated={validated} onSubmit={handleSubmitClick}>
             <Form.Group>
@@ -191,12 +185,9 @@ export default () => {
                         id="email" 
                         size="md" 
                         type="email" 
-                        required
+                        disabled
                         value={state.email}
                         onChange={handleChange} />
-                      <Form.Control.Feedback type="invalid">
-                        Campo Obrigatório
-                      </Form.Control.Feedback>
                   </Col>
                   <Col sm>
                       <Form.Label className="labelSingUp">CPF</Form.Label>
@@ -206,12 +197,9 @@ export default () => {
                         type="input" 
                         maxLength="14"
                         minLength="14"
-                        required
+                        disabled
                         value={state.cpf}
                         onChange={handleChange} />
-                      <Form.Control.Feedback type="invalid">
-                        Campo Obrigatório
-                      </Form.Control.Feedback>
                   </Col>
               </Row>
 
@@ -237,110 +225,21 @@ export default () => {
                         onChange={handleChange} />
                   </Col>
               </Row>
-
+              <br/>
               <Row>
-                <Col sm>
-                  <Form.Label className="labelSingUp">Senha</Form.Label>
-                  <Form.Control 
-                    id="password" 
-                    size="md" 
-                    type="password"
-                    required
-                    minLength="6"
-                    value={state.password}
-                    onChange={handleChange} />
-                    <Form.Control.Feedback type="invalid">
-                      Sua senha deve possuir no mínimo 8 caracteres.
-                    </Form.Control.Feedback>
+                <Col>
+                    <Button 
+                        variant="cadastrar" 
+                        size="md"
+                        block
+                        type="submit">
+                        Salvar alterações
+                    </Button>{' '}
                 </Col>
-
-                <Col sm>
-                  <Form.Label className="labelSingUp">Confirme sua senha</Form.Label>
-                  <Form.Control 
-                    id="confirmPassword" 
-                    size="md"
-                    type="password"
-                    required
-                    minLength="6"
-                    value={state.confirmPassword}
-                    onChange={handleChange} />
-                    <Form.Control.Feedback type="invalid">
-                      Campo Obrigatório
-                    </Form.Control.Feedback>
-                </Col>
-              </Row>
-
-              <Row>
-                <Col sm>
-                  <Form.Label className="labelSingUp">Para que deseja estudar?</Form.Label>
-                  <Form.Control as="select" id="typeUser" required value={state.typeUser} onChange={handleChange}>
-                    <option value={0}>Concurso</option>
-                    <option value={1}>Faculdade</option>
-                  </Form.Control>
-                </Col>
-              </Row>
-
-              <Row>
-                <Col sm>
-                  {['checkbox'].map((type) => (
-                    <div key={`inline-${type}`} className="mb-3">
-                      <Form.Check 
-                        inline  
-                        type={type} 
-                        checked={state.liEAceito}
-                        onChange={handleChange}
-                        className="labelSingUp" 
-                        id='liEAceito' />
-                      <span> Li e aceito a <span onClick={()=>setExibePolitica(true)} style={{fontWeight:'bold', cursor:'pointer'}}>política de privacidade e cookies.</span></span>
-                    </div>
-                  ))}
-                </Col>
-              </Row>
-              <Col>
-                <Button 
-                    variant="cadastrar" 
-                    size="md"
-                    block
-                    type="submit">
-                    Registrar
-                </Button>{' '}
-            </Col>
+              </Row>              
             </Form.Group>
           </Form>
-          <Row>
-            <Col>
-              <Button 
-                  variant="login" 
-                  size="sm"
-                  block 
-                  onClick={()=> history.push("/")}>
-                  Cancelar
-              </Button>{' '}
-            </Col>             
-          </Row>
           </div> 
-        }
-        {
-          registerCompleted &&
-          <>
-            <Alert show={true} variant="success">
-              <Alert.Heading>Registro realizado com sucesso!</Alert.Heading>
-              <p>
-                Seu cadastro no Memorizei foi realizado com sucesso, favor realizar o seu login para
-                aproveitar os recursos do nosso aplicativo.
-              </p>
-              <hr />
-              <div className="d-flex justify-content-end">
-                <Button onClick={() => history.push("/login")} variant="cadastrar">
-                  Fazer login
-                </Button>
-              </div>
-            </Alert>
-          </>
-        }
-        {
-          exibePolitica &&
-          <Policy setExibePolitica={setExibePolitica}/>
         }
       </Container>
     </div>

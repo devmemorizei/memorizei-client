@@ -34,6 +34,9 @@ export default () => {
   const loadUserDatas = async () => {
     setLoad(true);
     const { data } = await getUser(localStorage.getItem('userEmail'));
+
+    data.birthDate = data.birthDate.split('T')[0];
+
     setLoad(false);
     setState({
       name : data.name,

@@ -1,12 +1,15 @@
 /* eslint-disable import/no-anonymous-default-export */
 import React, { useState } from 'react';
 import './userArea.css';
+import { useHistory } from 'react-router-dom';
 import { Form, Col, Button, Container } from 'react-bootstrap';
 import { toast, ToastContainer } from 'react-toastify';
 import Loading from './Loading.js';
 import { changePassword } from '../Api.js';
+import ValidToken from './validToken.js';
 
-export default ({ setChangingPassword }) => {
+export default () => {
+    const history = useHistory();
     
     const [load, setLoad] = useState(false);
     const [validated, setValidated] = useState(false);
@@ -73,8 +76,6 @@ export default ({ setChangingPassword }) => {
                     confirmPassword : ''
                 });
                 setValidated(false);
-
-                setChangingPassword(false);
             }
         } else if (response.status === 500){
             toast.error(response.data.message, {
@@ -91,6 +92,7 @@ export default ({ setChangingPassword }) => {
 
     return (
         <div className="appWindow">
+            <ValidToken/>
             <ToastContainer />
             <div className="contentArea">
             {
@@ -164,6 +166,16 @@ export default ({ setChangingPassword }) => {
                             block
                             type="submit">
                             Salvar Alteração
+                        </Button>{' '}
+                    </Col>
+                    <Col xs="12">
+                        <Button 
+                            variant="login" 
+                            size="lg" 
+                            block 
+                            style={{marginTop: 20}} 
+                            onClick={()=> history.push("/userArea")}>
+                            Voltar
                         </Button>{' '}
                     </Col>
                 </Form>

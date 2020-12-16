@@ -6,6 +6,8 @@ import Login from './components/Login.js';
 import userArea from './components/userArea.js';
 
 import { BrowserRouter, Route, Switch } from 'react-router-dom';
+import userUpdate from './components/userUpdate.js';
+import changePassword from './components/changePassword.js';
 
 export default () => {
   return (
@@ -17,6 +19,8 @@ export default () => {
           <Route path='/cadastrar' component={SingUp} exact/>
           <Route path='/login' component={Login} exact/>
           <Route path='/userArea' component={userArea} exact/>
+          <Route path='/userUpdate' component={userUpdate} exact/>
+          <Route path='/changePassword' component={changePassword} exact/>
         </Switch>
       </div>
     </BrowserRouter>

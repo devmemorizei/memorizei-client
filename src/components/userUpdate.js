@@ -4,12 +4,15 @@ import {Container, Form, Button, Row, Col} from 'react-bootstrap';
 import { getUser, updateUser } from '../Api.js';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.min.css'; 
+import ValidToken from './validToken.js';
+import { useHistory } from 'react-router-dom';
 
 import './SingUp.css';
 import { cpfMask, telephoneMask } from '../utils/mask.js';
 import Loading from './Loading.js';
 
-export default ({ setChangingUserData }) => {
+export default () => {
+  const history = useHistory();
 
   const [state , setState] = useState({
     name : '',
@@ -110,8 +113,6 @@ export default ({ setChangingUserData }) => {
           });
 
           setValidated(false);
-
-          setChangingUserData(false);
       }
     } else {
       toast.error('Ocorreu um erro ao se registrar', {
@@ -137,6 +138,7 @@ export default ({ setChangingUserData }) => {
 
   return (
     <div>
+      <ValidToken/>
       <ToastContainer />
       <Container>
         <h5 className="txtSingUp">Alteração de dados</h5>
@@ -236,7 +238,17 @@ export default ({ setChangingUserData }) => {
                         Salvar alterações
                     </Button>{' '}
                 </Col>
-              </Row>              
+                <Col xs="12">
+                    <Button 
+                        variant="login" 
+                        size="lg" 
+                        block 
+                        style={{marginTop: 20}} 
+                        onClick={()=> history.push("/userArea")}>
+                        Voltar
+                    </Button>{' '}
+                </Col>
+              </Row>
             </Form.Group>
           </Form>
           </div> 

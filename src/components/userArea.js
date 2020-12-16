@@ -1,20 +1,14 @@
 /* eslint-disable import/no-anonymous-default-export */
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import './userArea.css';
 import { useHistory } from 'react-router-dom';
 import { ToastContainer } from 'react-toastify';
 import { Dropdown, Button, ButtonGroup} from 'react-bootstrap';
-import ChangePassorwd from './changePassword.js';
-import { verifyToken } from '../Api.js';
-import UserUpdate from './userUpdate';
+import ValidToken from './validToken.js';
 
 export default () => {
 
-  const history = useHistory();
-  const userName = localStorage.getItem('userName');
-  const userToken = localStorage.getItem('token');
-  const [changingPassword, setChangingPassword] = useState(false);
-  const [changingUserData, setChangingUserData] = useState(false);
+  const history = useHistory();  
 
   const logout = () => {
     localStorage.clear();
@@ -22,55 +16,39 @@ export default () => {
     history.push("/");
   };
 
-  useEffect(() => {
-    if(!userToken){
-      history.push("/");
-    }
+  const getNameUser = () => {
+    const userName = localStorage.getItem('userName');
 
-    validToken(userToken);        
-  });
+    let splitName = userName.split(' ');
 
-  const validToken = async (token) => {
-
-    const tokenVerified = await verifyToken(token);
-
-    if(!tokenVerified.data.auth){
-      history.push("/");
-    }
-  };
+    return splitName[0];
+  }
 
   const backUserArea = () => {
-    setChangingPassword(false);
-    setChangingUserData(false);
+    history.push("/userArea");
   };
 
   return (
     <div className="appWindow">
         <ToastContainer />
         <div className="headerUser">
-            {userName}
+            {getNameUser()}
             <Dropdown as={ButtonGroup}>
-              <Button onClick={backUserArea} variant="success">{userName}</Button>
+              <Button onClick={backUserArea} variant="success">{getNameUser()}</Button>
 
               <Dropdown.Toggle split variant="success" id="dropdown-split-basic" />
 
               <Dropdown.Menu>
-                <Dropdown.Item as="button" onClick={()=> setChangingPassword(true)}>Alterar senha</Dropdown.Item>
-                <Dropdown.Item as="button" onClick={()=> setChangingUserData(true)}>Dados Pessoais</Dropdown.Item>
+                <Dropdown.Item as="button" onClick={()=> history.push("/changePassword")}>Alterar senha</Dropdown.Item>
+                <Dropdown.Item as="button" onClick={()=> history.push("/userUpdate")}>Dados Pessoais</Dropdown.Item>
                 <Dropdown.Item as="button" onClick={()=> logout()}>Sair</Dropdown.Item>
               </Dropdown.Menu>
             </Dropdown>
         </div>
         <div className="contentArea">
-          {
-            changingPassword &&
-            <ChangePassorwd setChangingPassword={setChangingPassword}/>
-          }
-          {
-            changingUserData &&
-            <UserUpdate setChangingUserData={setChangingUserData}/>
-          }
+          
         </div>
+        <ValidToken/>
     </div>
     
   );

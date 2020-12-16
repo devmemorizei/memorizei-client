@@ -6,8 +6,12 @@ const urlBase = 'https://memorizei-api.herokuapp.com';
 const urlBaseApi = `${urlBase}/api`;
 //const URLBASEDEVAPI = `${urlBaseDev}/api`;
 
+const getUrlApi = nameAPi => {
+    return `${urlBaseApi}/${nameAPi}`;
+}
+
 const createUser = async (user) => {
-    return axios.post(`${urlBaseApi}/user`, user)
+    return axios.post(getUrlApi('user'), user)
     .then(function (response) {
         return response;
     })
@@ -17,7 +21,7 @@ const createUser = async (user) => {
 };
 
 const login = async userLogin => {
-    return axios.post(`${urlBaseApi}/login`, userLogin)
+    return axios.post(getUrlApi('login'), userLogin)
     .then(function (response) {
         return response;
     })
@@ -27,7 +31,7 @@ const login = async userLogin => {
 };
 
 const newPassword = async userLogin => {
-    return axios.post(`${urlBaseApi}/newPassword`, null, { params: { email: userLogin } })
+    return axios.post(getUrlApi('newPassword'), null, { params: { email: userLogin } })
     .then(function (response) {
         return response;
     })
@@ -37,7 +41,7 @@ const newPassword = async userLogin => {
 };
 
 const changePassword = async (userLogin, oldPassword, newPassword) => {
-    return axios.post(`${urlBaseApi}/changePassword`, null, { params: { email: userLogin, oldPassword: oldPassword, newPassword: newPassword } })
+    return axios.post(getUrlApi('changePassword'), null, { params: { email: userLogin, oldPassword: oldPassword, newPassword: newPassword } })
     .then(function (response) {
         return response;
     })
@@ -47,7 +51,7 @@ const changePassword = async (userLogin, oldPassword, newPassword) => {
 };
 
 const verifyToken = async token => {
-    return axios.get(`${urlBaseApi}/verifyTokenIsValid`, { params: { token: token} })
+    return axios.get(getUrlApi('verifyTokenIsValid'), { params: { token: token} })
     .then(function (response) {
         return response;
     })
@@ -57,7 +61,7 @@ const verifyToken = async token => {
 }
 
 const getUser = async userEmail => {
-    return axios.get(`${urlBaseApi}/user`, { params: { userEmail: userEmail} })
+    return axios.get(getUrlApi('user'), { params: { userEmail: userEmail} })
     .then(function (response) {
         return response;
     })
@@ -67,7 +71,7 @@ const getUser = async userEmail => {
 }
 
 const updateUser = async user => {
-    return axios.put(`${urlBaseApi}/user`, user, { params: { email: user.email } })
+    return axios.put(getUrlApi('user'), user, { params: { email: user.email } })
     .then(function (response) {
         return response;
     })

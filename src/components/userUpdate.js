@@ -35,7 +35,7 @@ export default () => {
     setLoad(true);
     const { data } = await getUser(localStorage.getItem('userEmail'));
 
-    data.birthDate = data.birthDate.split('T')[0];
+    data.birthDate = data.birthDate ? data.birthDate.split('T')[0] : '';
 
     setLoad(false);
     setState({

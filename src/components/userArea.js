@@ -19,7 +19,7 @@ export default () => {
   const getNameUser = () => {
     const userName = localStorage.getItem('userName');
 
-    let splitName = userName.split(' ');
+    let splitName = userName ? userName.split(' ') : '';
 
     return splitName[0];
   }

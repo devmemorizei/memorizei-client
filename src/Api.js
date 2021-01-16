@@ -80,6 +80,16 @@ const updateUser = async user => {
     });
 };
 
+const getBooks = async () => {
+    return axios.get(getUrlApi('book'))
+    .then(function (response) {
+        return response;
+    })
+    .catch(function (error) {
+        return error.response;
+    });
+};
+
 axios.interceptors.request.use(
     config => {
       const { origin } = new URL(config.url);
@@ -95,4 +105,4 @@ axios.interceptors.request.use(
     }
 );
 
-export { createUser, login, newPassword, changePassword, verifyToken, updateUser, getUser };
+export { createUser, login, newPassword, changePassword, verifyToken, updateUser, getUser, getBooks };

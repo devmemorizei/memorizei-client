@@ -1,14 +1,47 @@
 /* eslint-disable import/no-anonymous-default-export */
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import './userArea.css';
 import { useHistory } from 'react-router-dom';
 import { ToastContainer } from 'react-toastify';
-import { Dropdown, Button, ButtonGroup} from 'react-bootstrap';
+import { Dropdown, Button, ButtonGroup, Container, Card, Badge } from 'react-bootstrap';
 import ValidToken from './validToken.js';
+import Logo from './Logo';
+import Loading from './Loading.js';
+import { getBooks } from '../Api';
 
 export default () => {
 
   const history = useHistory();  
+  const [titles, setTitles] = useState(undefined);
+  const [bookDescription, setBookDescription] = useState(null);
+  const [load, setLoad] = useState(false);
+
+  useEffect(() => {
+    if(!titles){
+      loadBook();
+    }       
+  });
+
+  const loadBook = async () => {
+    setLoad(true);
+    let {data} = await getBooks();
+    
+    data.books[0].title.forEach(title => {
+      if(title.chapter.length > 0){
+        title.chapter.forEach(chapter => {
+          delete chapter.questions;
+        });        
+      } else {
+          delete title.questions;
+      }
+    });
+
+    setTitles(data.books[0].title);
+    setBookDescription(data.books[0].bookDescription);
+    
+    setLoad(false);
+
+  };
 
   const logout = () => {
     localStorage.clear();
@@ -45,11 +78,67 @@ export default () => {
               </Dropdown.Menu>
             </Dropdown>
         </div>
-        <div className="contentArea">
-          
+        <div className="contentArea">        
+          <Container>
+            <Logo/>
+            <br/>
+            {
+              load &&
+              <Loading type={'bubbles'} color={'#fe7353'} height={'20%'} width={'20%'}/>
+            }
+            {
+              !load && titles &&
+              <div>
+                <h4>{bookDescription}</h4>
+                <div>
+                  {
+                    titles.map( title => {
+                      return <Card style={{marginBottom:'10px'}}>
+                              <Card.Header>
+                                {title.descriptionTitle}
+                                {
+                                  title.free &&
+                                  <span>
+                                    <Badge variant="success">Free</Badge>{' '}
+                                  </span>
+                                }
+                                {
+                                  !title.free &&
+                                  <span>
+                                    <Badge variant="danger">Premium</Badge>{' '}
+                                  </span>
+                                }
+                              </Card.Header>                              
+                              <Card.Body>
+                                {
+                                  title.chapter.length === 0 &&
+                                  <div>
+                                    <Button disabled={!title.free} variant="primary">Responder</Button>
+                                  </div>
+                                }
+                                {
+                                  title.chapter.length > 0 &&
+
+                                  title.chapter.map(chapter => {
+                                    return <div>
+                                            <Card.Title>
+                                              {chapter.descriptionChapter}
+                                            </Card.Title>
+                                            <Button disabled={!title.free} style={{marginBottom:'10px'}} variant="primary">Responder</Button>
+                                          </div>                                          
+                                  })
+                                }
+                              </Card.Body>
+                            </Card>
+                    })
+                  }
+                  <br/>
+                </div>
+              </div>
+            }          
+          </Container>          
         </div>
         <ValidToken/>
-    </div>
-    
+    </div>    
   );
 }

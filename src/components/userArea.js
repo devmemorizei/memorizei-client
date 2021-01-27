@@ -11,7 +11,7 @@ import { getBooks } from '../Api';
 
 export default () => {
 
-  const history = useHistory();  
+  const history = useHistory();
   const [titles, setTitles] = useState(undefined);
   const [bookDescription, setBookDescription] = useState(null);
   const [load, setLoad] = useState(false);
@@ -37,7 +37,12 @@ export default () => {
     });
 
     setTitles(data.books[0].title);
-    setBookDescription(data.books[0].bookDescription);
+    setBookDescription(
+      {
+        id: data.books[0]._id,
+        descripton: data.books[0].bookDescription,
+      }
+    );
     
     setLoad(false);
 
@@ -89,7 +94,7 @@ export default () => {
             {
               !load && titles &&
               <div>
-                <h4>{bookDescription}</h4>
+                <h4>{bookDescription.descripton}</h4>
                 <div>
                   {
                     titles.map( title => {
@@ -113,7 +118,12 @@ export default () => {
                                 {
                                   title.chapter.length === 0 &&
                                   <div>
-                                    <Button disabled={!title.free} variant="primary">Responder</Button>
+                                    <Button 
+                                      disabled={!title.free} 
+                                      variant="primary"
+                                      onClick={()=> history.push("/questions", {bookId: bookDescription.id, titleId: title.idTitle})}>
+                                      Responder
+                                    </Button>
                                   </div>
                                 }
                                 {
@@ -124,7 +134,13 @@ export default () => {
                                             <Card.Title>
                                               {chapter.descriptionChapter}
                                             </Card.Title>
-                                            <Button disabled={!title.free} style={{marginBottom:'10px'}} variant="primary">Responder</Button>
+                                            <Button 
+                                              disabled={!title.free} 
+                                              style={{marginBottom:'10px'}} 
+                                              variant="primary"
+                                              onClick={()=> history.push("/questions", {bookId: bookDescription.id, titleId: title.idTitle, chapterId: chapter.idChapter})}>
+                                              Responder
+                                            </Button>
                                           </div>                                          
                                   })
                                 }

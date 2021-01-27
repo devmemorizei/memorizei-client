@@ -184,7 +184,7 @@ export default () => {
               </Row>
                 
               <Row>
-                <Col sm>
+                  <Col sm>
                       <Form.Label className="labelSingUp">E-mail</Form.Label>
                       <Form.Control 
                         id="email" 

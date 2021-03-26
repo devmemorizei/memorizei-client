@@ -26,6 +26,8 @@ export default () => {
     setLoad(true);
     let {data} = await getBooks();
     
+    if(!data.books) return;
+
     data.books[0].title.forEach(title => {
       if(title.chapter.length > 0){
         title.chapter.forEach(chapter => {
@@ -70,7 +72,7 @@ export default () => {
     <div className="appWindow">
         <ToastContainer />
         <div className="headerUser">
-            {getNameUser()}
+            {localStorage.getItem('userName')}
             <Dropdown as={ButtonGroup}>
               <Button onClick={backUserArea} variant="success">{getNameUser()}</Button>
 
@@ -152,7 +154,7 @@ export default () => {
                 </div>
               </div>
             }          
-          </Container>          
+          </Container>
         </div>
         <ValidToken/>
     </div>    

@@ -4,9 +4,10 @@ import { Card, Container, Col, Form, Button, Alert } from 'react-bootstrap';
 import Logo from './Logo';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.min.css';
-import { getBooks } from '../Api';
+import { getBooks, getUserAnswers, saveAnswerUser } from '../Api';
 import { useLocation, useHistory } from "react-router-dom";
 import Loading from './Loading.js';
+import ValidToken from './validToken.js';
 
 export default () => {
 
@@ -19,7 +20,10 @@ export default () => {
     const [descricaoQuestaoAlterada, setDescricaoQuestaoAlterada] = useState('');
     const [textInput, setTextInput] = useState([]);
     const [questaoCerta, setQuestaoCerta] = useState(undefined);
-    const [load, setLoad] = useState(false);      
+    const [load, setLoad] = useState(false);
+    const [gradeCalculated, setGradeCalculated] = useState(0);
+    const [quantityCorrectAnswers, setQuantityCorrectAnswers] = useState(0);
+    const [finalized, setFinalized] = useState(false);
 
       useEffect(() => {
         if(!questions){
@@ -42,6 +46,10 @@ export default () => {
       const loadQuestions = async () => {
         setLoad(true);
         let {data} = await getBooks();
+        if(!data.books) return;
+
+        let answers = await getUserAnswers(location.state.bookId, location.state.titleId, location.state.chapterId);
+        
         let book = {};
         let title = {};
         let chapter = {};
@@ -55,6 +63,33 @@ export default () => {
         } else {
           chapter = title.chapter.find(chapter => chapter.idChapter === location.state.chapterId);
           questionsTest = chapter.questions;
+        }
+        var questionsAnswereds = [];
+        
+        if(answers.data.answersUser.length !== questionsTest.length){
+          answers.data.answersUser.forEach((questaoRespondida, indexRespondida) => {
+            questionsTest.forEach((questao, indexQuestao) => {
+                if(questaoRespondida.questionId === questao.questionID){
+                  questionsAnswereds.push(indexQuestao);
+                }
+            });
+          }); 
+
+          questionsAnswereds.forEach(questionForDeleted => {
+            questionsTest.splice(questionForDeleted, 1);
+          });
+        } else if (answers.data.answersUser.length > 0) {
+          let firstDate = new Date(answers.data.answersUser[0].repeatAt);
+          
+          if(firstDate >= Date.now()){
+            toast.error(`Você já respondeu todas as questões até o momento, você poderá repeti-las no dia ${firstDate.toLocaleString()}`, {
+              autoClose:true,
+              hideProgressBar:true
+            });
+  
+            history.push("/userArea");
+            return;
+          }
         }
 
         if(questionsTest.length === 0){
@@ -87,14 +122,29 @@ export default () => {
       };
     
       const handleClickContinue = () => {
+        sendAnswerUser();
         setTextInput([]);
         limpaInputsRepostas();
         setQuestaoCerta(undefined);
         if(currentIndexQuestions + 1 === questions.length){
-          alert('Acabou as questões');
+          setFinalized(true);
         } else {
           setCurrentIndexQuestions(currentIndexQuestions + 1);
         }
+      }
+
+      const sendAnswerUser = async () => {
+        
+        var objDataAnswer = {
+          bookId: location.state.bookId,
+          titleId: location.state.titleId, 
+          chapterId: location.state.chapterId,
+          questionId: currentQuestion.questionID,
+          correctAnswer: questaoCerta,
+          grade: gradeCalculated
+        }
+        
+        saveAnswerUser(objDataAnswer);
       }
     
       const handleOnChangeInput = (e) => {
@@ -115,18 +165,47 @@ export default () => {
       }
     
       const verificaRepostasCorreta = () => {
+        
+        var objQuestionsCorrects = {
+          questoesCertas: 0,
+          questoesIncorretas: 0
+        };
+        let correctQuestion = false;
+
         for (let i = 0; i < currentQuestion.correctAnswers.length; i++) {
+
           const element = currentQuestion.correctAnswers[i];
           let answerExpectededNormal = removerAcentosString(element.answerExpecteded);
           let answerUser = removerAcentosString(textInput[i]);
           if(answerExpectededNormal === answerUser){
             setQuestaoCerta(true);
+            correctQuestion = true;
+            objQuestionsCorrects.questoesCertas++;
           }
           else{
+            objQuestionsCorrects.questoesIncorretas++;
+            correctQuestion = false;
             setQuestaoCerta(false);
           }
         }
 
+        var percentageError = ((currentQuestion.correctAnswers.length - objQuestionsCorrects.questoesCertas) / currentQuestion.correctAnswers.length) * 100;
+        
+        if(percentageError === 100){
+          setGradeCalculated(0);
+        } else if(percentageError >= 60){
+          setGradeCalculated(1);
+        } else if (percentageError > 0){
+          setGradeCalculated(2);
+        } else {
+          setGradeCalculated(5);
+        }
+
+        if(correctQuestion){
+          var numCorrectQuestion = quantityCorrectAnswers + 1;
+          setQuantityCorrectAnswers(numCorrectQuestion);
+        }
+        
         setTimeout(() => {window.scrollTo(0,document.body.scrollHeight);}, 300);
       }
     
@@ -178,8 +257,30 @@ export default () => {
               <Loading type={'bubbles'} color={'#fe7353'} height={'20%'} width={'20%'}/>
             }
             {
-              !load && currentQuestion &&
+              finalized &&
+              <>
+                <br></br>
+                <Alert show={true} variant="success">
+                  <Alert.Heading>Artigos concluídos!</Alert.Heading>
+                  <p>
+                    Você acertou {quantityCorrectAnswers} de {questions.length}.
+                  </p>
+                  <p>
+                    Clique no botão Home, para voltar e continuar seus estudos.
+                  </p>
+                  <hr />
+                  <div className="d-flex justify-content-end">
+                    <Button onClick={() => history.push("/userArea")} variant="cadastrar">
+                      Home
+                    </Button>
+                  </div>
+                </Alert>
+              </>
+            }
+            {
+              !load && currentQuestion && !finalized &&
               <div>
+                <br></br>
                 <Card bg='light' text='dark' className="mb-2">                    
                     <Card.Body>
                     <Card.Text id="CardText1">
@@ -237,6 +338,7 @@ export default () => {
               </div>
             }
         </Container>
+        <ValidToken/>
     </div>
   );
 }

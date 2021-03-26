@@ -90,6 +90,26 @@ const getBooks = async () => {
     });
 };
 
+const getUserAnswers = async (bookId, titleId, chapterId) => {
+    return axios.get(getUrlApi('book/getUserAnswers'), { params: { bookId: bookId, titleId: titleId, chapterId: chapterId }})
+    .then(function (response) {
+        return response;
+    })
+    .catch(function (error) {
+        return error.response;
+    });
+};
+
+const saveAnswerUser = async (objDataAnswer) => {
+    return axios.post(getUrlApi('book/userAnswer'), objDataAnswer)
+    .then(function (response) {
+        return response;
+    })
+    .catch(function (error) {
+        return error.response;
+    });
+}
+
 axios.interceptors.request.use(
     config => {
       const { origin } = new URL(config.url);
@@ -105,4 +125,13 @@ axios.interceptors.request.use(
     }
 );
 
-export { createUser, login, newPassword, changePassword, verifyToken, updateUser, getUser, getBooks };
+export { createUser, 
+         login, 
+         newPassword, 
+         changePassword, 
+         verifyToken, 
+         updateUser, 
+         getUser, 
+         getBooks, 
+         getUserAnswers,
+         saveAnswerUser };
